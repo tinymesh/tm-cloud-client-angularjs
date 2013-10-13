@@ -1,0 +1,178 @@
+<!doctype html>
+<html ng-app="StreamExample">
+	<head>
+		<meta charset="utf-8" />
+		<title>Tinymesh Cloud Stream Example</title>
+		<link href="bootstrap.min.css" rel="stylesheet">
+
+		<style type="text/css">
+			body {
+				padding-top:100px;
+				background: #efefef; }
+
+			.box {
+				margin: 0;
+				border-radius: 6px;
+				background: #fff;
+				border: 1px solid #ddd;
+				padding: 0 2em 3em;
+				box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1); }
+
+			.flash-container {
+				margin: 0 auto; }
+
+			#selectors {
+				position: absolute;
+				top: 40px;
+				right: 28px; }
+			.net-selector > button { min-width: 10em; }
+
+			.list-group-item > .btn-group {
+				position: absolute;
+				top: 5px; right: 5px; }
+
+			.dropdown-toggle, .menuitem {
+				position: relative;
+				float: left;
+				margin-left: 1em; }
+			.dropdown-toggle:hover .dropdown-menu {
+				display: block; }
+					.dropdown-menu {
+						margin: 1px 0px 0px 0px; }
+					.dropdown-menu a {
+						cursor: pointer; }
+					.dropdown-menu span {
+						display: block;
+						padding: 3px 20px;
+						clear: both;
+						font-weight: normal;
+						line-height: 1.428571429;
+						color: #333;
+						white-space: nowrap; }
+					.dropdown-menu .active a {
+						color: #FFF;
+						text-decoration: none;
+						background-color: #428BCA; }
+			.device-list label {
+				cursor: pointer; font-weight: normal; }
+		</style>
+	</head>
+
+	<body ng-controller="AuthController" ng-cloak>
+		<div ng-show="flash" class="container flash-container">
+			<div class="col-md-4 col-md-push-4 alert alert-{{flashClass || 'info'}}">
+				{{flash}}
+			</div>
+		</div>
+
+		<div ng-hide="$session.authenticated" class="container" ng-controller="LoginController">
+			<form class="box col-md-4 col-md-push-4" name="loginForm"
+				ng-submit="login(auth)">
+				<div class="page-header">
+					<h2 class="form-signin-heading">Please sign in</h2>
+				</div>
+
+				<div class="form-group" ng-class="{'has-error': loginForm.email.$invalid}">
+					<input name="email" ng-model="auth.email"
+						type="email" class="form-control"
+						placeholder="Email address"
+						required autofocus>
+				</div>
+
+				<div class="form-group"  ng-class="{'has-error': loginForm.password.$invalid}">
+					<input name="password" ng-model="auth.password"
+						type="password" class="form-control"
+						placeholder="Password"
+						ng-minlength="8"
+						required>
+				</div>
+
+				<button type="submit" class="btn btn-primary btn-block" ng-disabled="loginForm.$invalid">Sign in</button>
+			</form>
+		</div>
+
+		<div ng-show="$session.authenticated" class="container" ng-controller="StreamController">
+			<div class="box col-md-10 col-md-push-1">
+				<div class="page-header">
+					<h2 class="form-signin-heading">Stream Example</h2>
+				</div>
+				<div id="selectors" class="row">
+					<div class="dropdown-toggle">
+						<button type="button" class="btn btn-primary">
+							<b>{{user.email}}</b> <i>({{context}})</i> <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li ng-click="setContext('tmc')"
+								ng-class="{active: 'tmc' === context}">
+								<a>User Context</a>
+							</li>
+							<li
+								ng-repeat="(k, i) in user.resources"
+								ng-click="setContext(k)"
+								ng-class="{active: k === context}">
+								<a>{{i.name}}</a>
+							</li>
+						</ul>
+					</div>
+
+					<div class="dropdown-toggle net-selector">
+						<button type="button" class="btn btn-info">
+							<b>{{net.name || net.key || "Network not selected"}}</b> <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li ng-show="networks.length === 0">
+								<span>No networks in client context</span>
+							</li>
+							<li
+								ng-repeat="(k, i) in networks"
+								ng-click="setNet(i);"
+								ng-class="{active: k === net.key}">
+								<a>{{i.name}} ({{i.key}})</a>
+							</li>
+						</ul>
+					</div>
+					<div class="menuitem">
+						<button ng-click="logout()" type="button" class="btn btn-default">Logout</button>
+					</div>
+				</div>
+
+				<div ng-show="'tmc' === context">
+					<div class="alert alert-info">
+						<h4>Hey there stranger!</h4>
+						<p>
+							You are currently in a <i>user security context</i>.
+							This means you can only access data related to your user,
+							and not to any clients (clients have their own security context).
+						</p>
+						<p>
+							You can switch to a <i>client security context</i> by
+							pressing the button in top right corner of this box.
+						</p>
+					</div>
+				</div>
+
+				<div ng-show="!net">
+					<div class="alert alert-info">
+						<h4>Ouch, I'm empty!</h4>
+						<p>
+							This <i>client security context</i> does not contain
+							any networks. This is surely a mistake, either you should
+							add a network or switch to a different <i>client security context</i>
+						</p>
+					</div>
+				</div>
+				<div ng-show="net">
+					<pre>{{data.join("\r\n")}}</pre>
+				</div>
+			</div>
+		</div>
+
+		<script src="../dist/angular.js"></script>
+		<script src="../dist/crypto.js"></script>
+		<script src="../dist/underscore.js"></script>
+		<script src="../dist/ngStorage.js"></script>
+		<script src="../src/tm.cloud.client.js"></script>
+		<script src="stream.js"></script>
+	</body>
+</html>
+

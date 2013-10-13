@@ -1,0 +1,19 @@
+{
+	"author": "Tiny Mesh AS",
+	"name": "tm-cloud-client-angularjs",
+	"version": "0.1.0",
+	"licenses": [
+		{"type": "BSD", "url": "file://./LICENSE"}
+	],
+	"dependencies": {
+		"underscore": "~1.5.1",
+		"json3": "~3.2.5"
+	},
+	"devDependencies": {
+		"grunt": "~0.4.0",
+		"grunt-contrib-clean": "~0.4.0",
+		"grunt-contrib-copy": "~0.4.0",
+		"grunt-contrib-jshint": "~0.2.0",
+		"grunt-contrib-concat": "~0.1.3"
+	}
+}

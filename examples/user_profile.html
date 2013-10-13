@@ -1,0 +1,183 @@
+<!doctype html>
+<html ng-app="AuthExample">
+	<head>
+		<meta charset="utf-8" />
+		<title>Tinymesh Cloud Auth Example</title>
+		<link href="bootstrap.min.css" rel="stylesheet">
+
+		<style type="text/css">
+			body {
+				padding-top:100px;
+				background: #efefef;
+			}
+
+			.box {
+				margin: 0;
+				border-radius: 6px;
+				background: #fff;
+				border: 1px solid #ddd;
+				padding: 0 2em 3em;
+				box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+			}
+
+			.flash-container {
+				margin: 0 auto;
+			}
+
+			.list-group-item > a { cursor: pointer; display: block; }
+			.list-group-item > a:hover { text-decoration: none }
+		</style>
+	</head>
+
+	<body ng-controller="AuthController" ng-cloak>
+		<div ng-show="flash" class="container flash-container">
+			<div class="col-md-4 col-md-push-4 alert alert-{{flashClass || 'info'}}">
+				{{flash}}
+			</div>
+		</div>
+
+		<div ng-hide="$session.authenticated" class="container" ng-controller="LoginController">
+			<form class="box col-md-4 col-md-push-4" name="loginForm"
+				ng-submit="login(auth)">
+				<div class="page-header">
+					<h2 class="form-signin-heading">Please sign in</h2>
+				</div>
+
+				<div class="form-group" ng-class="{'has-error': loginForm.email.$invalid}">
+					<input name="email" ng-model="auth.email"
+						type="email" class="form-control"
+						placeholder="Email address"
+						required autofocus>
+				</div>
+
+				<div class="form-group"  ng-class="{'has-error': loginForm.password.$invalid}">
+					<input name="password" ng-model="auth.password"
+						type="password" class="form-control"
+						placeholder="Password"
+						ng-minlength="8"
+						required>
+				</div>
+
+				<button type="submit" class="btn btn-primary btn-block" ng-disabled="loginForm.$invalid">Sign in</button>
+			</form>
+		</div>
+
+		<div ng-show="$session.authenticated" class="container" ng-controller="UserController">
+			<form name="userForm" class="form-horizontal box col-md-10 col-md-push-1" role="form">
+				<div class="page-header">
+					<h2 class="form-signin-heading">User information</h2>
+				</div>
+
+				<div class="form-group col-lg-6"  ng-class="{'has-error': userForm.email.$invalid}">
+					<label for="email" class="col-md-4 control-label">Email</label>
+					<div class="col-md-8">
+						<input name="email" ng-model="user.email"
+							type="email" class="form-control" id="email"
+							placeholder="Email" disabled>
+					</div>
+				</div>
+
+				<div class="clearfix"></div>
+
+				<div class="form-group col-lg-6"  ng-class="{'has-error': userForm.first_name.$invalid}">
+					<label for="first_name" class="col-md-4 control-label">First Name</label>
+					<div class="col-md-8">
+						<input name="first_name" ng-model="user.first_name"
+							type="text" class="form-control" id="first_name"
+							placeholder="First name"
+							required>
+					</div>
+				</div>
+
+				<div class="form-group col-lg-6"  ng-class="{'has-error': userForm.last_name.$invalid}">
+					<label for="last_name" class="col-md-4 control-label">Last Name</label>
+					<div class="col-md-8">
+						<input name="last_name" ng-model="user.last_name"
+							type="text" class="form-control" id="last_name"
+							placeholder="Last name"
+							required>
+					</div>
+				</div>
+
+				<div class="form-group col-lg-6" ng-class="{'has-error': userForm.password_a.$invalid}">
+					<label for="password_a" class="col-md-4 control-label">Password</label>
+					<div class="col-md-8">
+						<input name="password_a" ng-model="password.a"
+							type="password" class="form-control" id="password_a"
+							ng-blur="userForm.password_b.$setValidity('password_b', password.a === password.b)"
+							ng-minlength="8"
+							placeholder="Password">
+
+						<p ng-show="userForm.password_a.$invalid" class="help-block">
+							<b>Password must be at least 8 characters</b>
+						</p>
+					</div>
+				</div>
+
+				<div class="form-group col-lg-6" ng-class="{'has-error': userForm.password_b.$invalid}">
+					<div class="col-md-push-4 col-md-8">
+
+						<input name="password_b" ng-model="password.b"
+							type="password" class="form-control" id="password_b"
+							ng-change="userForm.password_b.$setValidity('password_b', password.a === password.b)"
+							placeholder="Confirm Password">
+
+						<p ng-show="userForm.password_b.$invalid" class="help-block">
+							<b>Password do not match</b>
+						</p>
+					</div>
+				</div>
+
+				<div class="clearfix"></div>
+
+				<div class="page-header">
+					<h3>Security</h3>
+				</div>
+
+				<h4>User auth token</h4>
+				<pre>{{token}}</pre>
+
+				<br />
+
+				<h4>Security contexts ({{context}})</h4>
+				<ul class="list-group">
+					<li ng-click="setContext('tmc')" class="list-group-item">
+						<a>user:{{user.email}}
+							<span ng-show="'tmc' === context" class="label label-success">Active</span>
+						</a>
+					</li>
+					<li ng-click="setContext(k)" ng-repeat="(k, i) in user.resources"
+							class="list-group-item">
+						<a>resource:{{k}}
+							<span ng-show="k === context" class="label label-success">Active</span>
+						</a>
+					</li>
+				</ul>
+
+				<br />
+
+				<h4>CORS origins</h4>
+				<ul class="list-group">
+				<li ng-repeat="origin in user.origins" class="list-group-item">{{origin}}</li>
+				</ul>
+
+				<hr />
+
+				<div class="form-group">
+					<div class="col-lg-10">
+						<button ng-click="update(user)" type="submit" class="btn btn-primary" ng-disabled="userForm.$invalid">Submit changes</button>
+						<button ng-click="logout()" class="btn btn-default">Logout</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<script src="../dist/angular.js"></script>
+		<script src="../dist/crypto.js"></script>
+		<script src="../dist/underscore.js"></script>
+		<script src="../dist/ngStorage.js"></script>
+		<script src="../src/tm.cloud.client.js"></script>
+		<script src="user_profile.js"></script>
+	</body>
+</html>
+
