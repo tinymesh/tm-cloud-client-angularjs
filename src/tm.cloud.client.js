@@ -229,7 +229,9 @@ angular.module('tmCloudClientMessage', ['ngResource'])
 	})
 	.factory('tmMsg', function($resource, endpoint, tmAuth) {
 		var res = $resource(endpoint + '/message/:network/:device/:message', {}, {
-			get: {method: "GET"},
+			get: {method: "GET", transformRequest: function(data, headers) {
+				return tmAuth.signReq('GET', '/message/', "", headers);
+			}},
 			create: {method: 'POST', transformRequest: function(data, headers) {
 				data = angular.toJson(data);
 				return tmAuth.signReq('POST', '/message/', data, headers);
