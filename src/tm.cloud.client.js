@@ -187,7 +187,28 @@ angular.module('tmCloudClientNetwork', ['ngResource'])
 				return tmAuth.signReq('PUT', '/network/'  + data.network, data, headers);
 			}},
 			get: {method: 'get', transformRequest: function(data, headers) {
-				var omit = ['addr', 'counters', 'devices', 'key'];
+				var omit = ['addr', 'counters', 'devices'];
+				data = angular.toJson(_.omit(data, omit));
+				return tmAuth.signReq('PUT', '/network/'  + data.network, data, headers);
+			}},
+		});
+	});
+
+angular.module('tmCloudClientDevice', ['ngResource'])
+	.factory('tmDevice', function($resource, endpoint, tmAuth) {
+		return $resource(endpoint + '/device/:network/:key', {key: '@key', network: '@network'}, {
+			create: {method: 'POST', transformRequest: function(data, headers) {
+				data = angular.toJson(data);
+				return tmAuth.signReq('POST', '/device', data, headers);
+			}},
+			update: {method: 'PUT', transformRequest: function(data, headers) {
+				var url, omit = ['addr', 'counters', 'devices', 'key'];
+				url = '/device/'  + data.network + '/' + data.key;
+				data = angular.toJson(_.omit(data, omit));
+				return tmAuth.signReq('PUT', url, data, headers);
+			}},
+			get: {method: 'get', transformRequest: function(data, headers) {
+				var omit = ['addr', 'counters', 'devices'];
 				data = angular.toJson(_.omit(data, omit));
 				return tmAuth.signReq('PUT', '/network/'  + data.network, data, headers);
 			}},
