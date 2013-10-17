@@ -4,6 +4,7 @@ angular.module('tmCloudClient', [
 		  'ngStorage'
 		, 'tmCloudClientUser'
 		, 'tmCloudClientNetwork'
+		, 'tmCloudClientDevice'
 		, 'tmCloudClientMessage'
 		, 'tmCloudClientStream'
 	])
@@ -130,13 +131,18 @@ angular.module('tmCloudClientUser', ['ngResource'])
 		};
 
 		res.__proto__.getAuthInfo = function(method, url, data) {
-			var sig;
+			var token;
 
-			sig = tmCloud.sign(method, endpoint + url, data);
+			if (this.resource === 'tmc') {
+				token = this.user_token;
+			} else {
+				token = this.resources[this.resource].token;
+			}
+
 			return {
 				resource: this.resource,
-				token:    this.token,
-				signatur: tmCloud.sign(method, url, data)
+				token:    token,
+				signatur: tmCloud.sign(method, endpoint + url, data)
 			};
 		};
 
@@ -158,7 +164,7 @@ angular.module('tmCloudClientUser', ['ngResource'])
 		res = new impl();
 
 		res.__proto__.setPassword = function(password) {
-			this.password = tmAuth.hashPassword(password);
+			this.password = tmAuth.hashPassword(password, this.email);
 		};
 
 
