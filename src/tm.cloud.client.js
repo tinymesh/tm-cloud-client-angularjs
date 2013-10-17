@@ -217,15 +217,13 @@ angular.module('tmCloudClientDevice', ['ngResource'])
 
 angular.module('tmCloudClientMessage', ['ngResource'])
 	.factory('tmMsgList', function($resource, endpoint, tmAuth) {
-		var res = $resource(endpoint + '/message/:net/:device', {}, {
+		return $resource(endpoint + '/message/:network/:device', {}, {
 			list: {method: "GET", isArray: true, transformRequest: function(data, headers) {
 				var uri = '/message/';
 				return tmAuth.signReq('GET', uri, "", headers);
 			}},
 
 		});
-
-		return res;
 	})
 	.factory('tmMsg', function($resource, endpoint, tmAuth) {
 		var res = $resource(endpoint + '/message/:network/:device/:message', {}, {
