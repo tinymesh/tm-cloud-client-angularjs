@@ -182,7 +182,7 @@ angular.module('tmCloudClientNetwork', ['ngResource'])
 				return tmAuth.signReq('POST', '/network', data, headers);
 			}},
 			update: {method: 'PUT', transformRequest: function(data, headers) {
-				var omit = ['addr', 'counters', 'devices', 'key'];
+				var omit = ['address', 'counters', 'devices', 'key', 'meta'];
 				data = angular.toJson(_.omit(data, omit));
 				return tmAuth.signReq('PUT', '/network/'  + data.network, data, headers);
 			}},
@@ -202,7 +202,7 @@ angular.module('tmCloudClientDevice', ['ngResource'])
 				return tmAuth.signReq('POST', '/device', data, headers);
 			}},
 			update: {method: 'PUT', transformRequest: function(data, headers) {
-				var url, omit = ['addr', 'counters', 'devices', 'key'];
+				var url, omit = ['address', 'counters', 'devices', 'key', 'meta'];
 				url = '/device/'  + data.network + '/' + data.key;
 				data = angular.toJson(_.omit(data, omit));
 				return tmAuth.signReq('PUT', url, data, headers);
